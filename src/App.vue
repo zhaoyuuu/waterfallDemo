@@ -2,12 +2,14 @@
   <div class="appMain">
     <Header/>
     <Container/>
+    <!-- <Axios/> -->
   </div>
 </template>
 
 <script>
 import Header from './components/Header'
 import Container from './components/Container'
+// import Axios from './components/axios'
 
 
 export default {

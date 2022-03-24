@@ -1,64 +1,62 @@
 <template>
   <div class="container">
-    <button @click="getImg">点击发送ajax请求</button>
+    <button @click="getImgUrl" class="moreButton">点击发送ajax请求</button>
     
-    <!-- <ul class='smallContainer'>
-      <li>
-        <img src="../../images/China1/0489b3341b2a5ec7313bb704e32a51b4.jpeg" alt="">
-      </li>
-      <li>
-        <img src="../../images/China1/2ee50e68eb48804fc60edfcea2318e6b.jpeg" alt="">
-      </li>
-      <li>
-        <img src="../../images/China1/34dbac280e5256ac573c29a48474e880.jpeg" alt="">
+    <ul class='smallContainer'>
+      <li v-for="(img,index) in urlArrLeft" :key="index">
+        <img :src="img" alt="">
       </li>
     </ul>
     <ul class='smallContainer'>
-      <li>
-        <img src="../../images/China1/0489b3341b2a5ec7313bb704e32a51b4.jpeg" alt="">
-      </li>
-      <li>
-        <img src="../../images/China1/2ee50e68eb48804fc60edfcea2318e6b.jpeg" alt="">
-      </li>
-      <li>
-        <img src="../../images/China1/34dbac280e5256ac573c29a48474e880.jpeg" alt="">
+      <li v-for="(img,index) in urlArrCenter" :key="index">
+        <img :src="img" alt="">
       </li>
     </ul>
     <ul class='smallContainer'>
-      <li>
-        <img src="../../images/China1/0489b3341b2a5ec7313bb704e32a51b4.jpeg" alt="">
+      <li v-for="(img,index) in urlArrRight" :key="index">
+        <img :src="img" alt="">
       </li>
-      <li>
-        <img src="../../images/China1/2ee50e68eb48804fc60edfcea2318e6b.jpeg" alt="">
-      </li>
-      <li>
-        <img src="../../images/China1/34dbac280e5256ac573c29a48474e880.jpeg" alt="">
-      </li>
-    </ul> -->
-  
+    </ul>
+
   </div>
   
 </template>
   
 <script>
-  import {ref, nextTick} from 'vue'
+  import {ref, nextTick, reactive} from 'vue'
   import axios from 'axios'
-  import url from '../../../public/images/imgUrl'
   
   export default {
     name:'ContainerL',
     setup(){
-      function getImg(){
+      const urlArrLeft = reactive([])
+      const urlArrCenter = reactive([])
+      const urlArrRight = reactive([])
+      // 得到图片的url
+      function getImgUrl(){
         axios.get("images/imgUrl.json")
             .then(res=>{
-              console.log(res.data[0]);
+              for(let i=0;i<6;i++){
+                let item = res.data.imgUrl[i]
+                let key = Object.keys(item)
+                // console.log(item[key]); // 输出6条图片地址
+                if(i<2){urlArrLeft.push(item[key])}
+                else if(i<4){urlArrCenter.push(item[key])}
+                else if(i<6){urlArrRight.push(item[key])}
+              }
+              // res.data.imgUrl.forEach(item=>{
+              //   let key = Object.keys(item)
+              //   // console.log(item[key]);// 输出多条图片地址
+              //   urlArr.push(item[key])
+              //   console.log(urlArr);
+              // })
             })
       }
 
+      // 监测窗口大小的改变
       let flag = ref(true)
       function reload(){
         console.log('窗口大小改变了');
-
         flag.value = false
         nextTick(()=>{
           flag.value = true
@@ -70,7 +68,7 @@
 
       return{
         flag, reload,
-        getImg
+        getImgUrl,urlArrLeft,urlArrCenter,urlArrRight
       }
       // axios
       //   .get('/api' + '/t/act-for-nature')
@@ -88,6 +86,20 @@
     display: flex;
     justify-content: space-between;
     padding: 20px;
+    // 加载更多的按钮
+    .moreButton{
+      display: block;
+      width: 140px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: coral;
+      border: 1px solid #ccc;
+      position: fixed;
+      right: 50px;
+      bottom: 50px;
+      color: #ccc;
+    }
     .smallContainer{
       flex: 0 1 auto;
       width: 32.5%;
