@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <h2>{{keyValue}}</h2>
     <button @click="getImgUrl" class="moreButton">点击发送ajax请求</button>
     
     <ul class='smallContainer'>
@@ -23,52 +24,77 @@
 </template>
   
 <script>
-  import {ref, nextTick, reactive} from 'vue'
+  import { reactive, ref, onBeforeUnmount } from 'vue'
+  import PubSub from 'pubsub-js'
   import axios from 'axios'
   
   export default {
     name:'ContainerL',
-    setup(){
+    props: ['keyValue','countNum'],
+    setup(props,context){
+      // 销毁的时候
+      onBeforeUnmount(()=>{
+        console.log('Container销毁了');
+      })
+      // 子组件重新渲染上去的时候向父组件请求count的值,并执行count次ajax请求
+      let count = ref(0)
+      console.log('子组件收到count的值'+props.countNum);
+      for(let i=0;i<props.countNum;i++){
+        getImgUrl()
+      }
+
       const urlArrLeft = reactive([])
       const urlArrCenter = reactive([])
       const urlArrRight = reactive([])
       // 得到图片的url
       function getImgUrl(){
+        PubSub.publish('currentCount', 1)
+        count.value++
+        console.log('getImgUrl被调用了');
         axios.get("images/imgUrl.json")
-            .then(res=>{
-              for(let i=0;i<6;i++){
-                let item = res.data.imgUrl[i]
-                let key = Object.keys(item)
-                // console.log(item[key]); // 输出6条图片地址
-                if(i<2){urlArrLeft.push(item[key])}
-                else if(i<4){urlArrCenter.push(item[key])}
-                else if(i<6){urlArrRight.push(item[key])}
-              }
-              // res.data.imgUrl.forEach(item=>{
-              //   let key = Object.keys(item)
-              //   // console.log(item[key]);// 输出多条图片地址
-              //   urlArr.push(item[key])
-              //   console.log(urlArr);
-              // })
-            })
+          .then(res=>{
+            for(let i=0;i<6;i++){
+              let item = res.data.imgUrl[i]
+              let key = Object.keys(item)
+              // console.log(item[key]); // 输出6条图片地址
+              if(i<2){urlArrLeft.push(item[key])}
+              else if(i<4){urlArrCenter.push(item[key])}
+              else if(i<6){urlArrRight.push(item[key])}
+            }
+          })
       }
-
+      
       // 监测窗口大小的改变
-      let flag = ref(true)
+      let flag = ref(false)
+      var timer
+      // reload函数
       function reload(){
+        flag.value = true
+        // 立马清空图片
+        urlArrLeft.length = 0
+        urlArrCenter.length = 0
+        urlArrRight.length = 0
+        // 检测到窗口大小的改变之后要做的事
         console.log('窗口大小改变了');
-        flag.value = false
-        nextTick(()=>{
-          flag.value = true
-        })
+        // 清除所有定时器
+        clearTimeout(timer)
+        // 设置一个定时器
+        timer = setTimeout(()=>{
+          if(flag.value===true){
+            context.emit('reRender', 1)
+            // 还原flag的值
+            flag.value = false
+          }
+        }, 2000)
       }
+      // window监视
       window.addEventListener('resize', ()=>{
         reload()
       })
 
       return{
-        flag, reload,
-        getImgUrl,urlArrLeft,urlArrCenter,urlArrRight
+        reload,getImgUrl,urlArrLeft,flag,
+        urlArrCenter,urlArrRight
       }
       // axios
       //   .get('/api' + '/t/act-for-nature')
