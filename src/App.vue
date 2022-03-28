@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { ref} from 'vue'
+import { ref, watch} from 'vue'
 import Pubsub from 'pubsub-js'
 import Header from './components/Header'
 import Container from './components/Container'
@@ -19,6 +19,10 @@ export default {
   components:{ Header, Container},
   setup(){
     let ContainerKey = ref(0)
+    // 监视ContainerKey值的变化
+    watch(ContainerKey,(newValue,oldValue)=>{
+      console.log('ContainerKey变了',newValue,oldValue);
+    })
     // 自定义reRender函数接收参数
     function reRender(){
       // console.log(val);
@@ -26,8 +30,8 @@ export default {
     }
     // 保存发送ajax请求的次数count（在父组件中！！）
     let count = ref(0)
-    Pubsub.subscribe('currentCount',(msg,data)=>{
-      count.value += data
+    Pubsub.subscribe('currentCount',()=>{
+      count.value++
       console.log('count值'+count.value);
     })
     // 子组件需要的时候交出去
