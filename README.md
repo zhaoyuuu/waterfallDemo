@@ -15,3 +15,8 @@
     如果网络不那么顺畅，用户在等待Ajax请求结果的时候页面上一点变化都没有，用户体验将会很差，所以我设计了 骨架屏 和 loading效果。
     骨架屏在用户第一次访问的时候会出现，图片请求成功之后就消失。每一次请求都会触发loading效果，同样是请求成功之后就消失。
     >有一个疑问：很容易出现 "cannot use count before innitializing" 的报错，应该是变量在使用之前没有初始化，将该变量在setup最前头初始化就解决了问题。vue打包没有帮我解决这个问题嘛？
+### 3.29
+    文字超出盒子显示省略号：
+    >overflow:hidden; text-overeflow:hidden; white-space:nowrap;
+    超链接点击新开页面：
+    >target="_blank"
