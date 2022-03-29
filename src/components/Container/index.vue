@@ -1,16 +1,15 @@
 <template>
   <div>
 
-    <div class="container" id="box">
+    <div class="container animate__animated animate__fadeInDown" id="box" v-if="renderFlag">
       <h2>{{keyValue}}</h2>
-      <button @click="getImgUrl" class="moreButton">MORE</button>
       
       <ul class='smallContainer' ref="leftRef">
         <li v-for="(img,index) in urlArrLeft" :key="index">
           <img :src="img" alt="">
           <div class="detail">
             <span class="leftDetail">{{img.slice(41)}}</span>
-            <span class="rightLink"><a :href="img" target="_blank" class="iconfont icon-link"></a></span>
+            <span class="rightLink"><a :href="img" target="_blank" class="iconfont icon-Open" title="点开图片"></a></span>
           </div>
         </li>
       </ul>
@@ -19,7 +18,7 @@
           <img :src="img" alt="">
           <div class="detail">
             <span class="leftDetail">{{img.slice(41)}}</span>
-            <span class="rightLink"><a :href="img" target="_blank" class="iconfont icon-link"></a></span>
+            <span class="rightLink"><a :href="img" target="_blank" class="iconfont icon-Open" title="点开图片"></a></span>
           </div>
         </li>
       </ul>
@@ -28,13 +27,13 @@
           <img :src="img" alt="">
           <div class="detail">
             <span class="leftDetail">{{img.slice(41)}}</span>
-            <span class="rightLink"><a :href="img" target="_blank" class="iconfont icon-link"></a></span>
+            <span class="rightLink"><a :href="img" target="_blank" class="iconfont icon-Open" title="点开图片"></a></span>
           </div>
         </li>
       </ul>
 
       <!-- loading效果 -->
-      <div class="loading animate__animated animate__flash" v-show="isLoadingShow">
+      <div class="loading" v-show="isLoadingShow">
         <span class="iconfont icon-loading"> Loading...</span>
       </div>
     
@@ -73,25 +72,16 @@
 </template>
   
 <script>
-  import { reactive, ref, onBeforeUnmount} from 'vue'
-  import PubSub from 'pubsub-js'
+  import { reactive, ref, onMounted} from 'vue'
   import axios from 'axios'
   import 'animate.css';
   
   export default {
     name:'ContainerL',
     props: ['keyValue','countNum'],
-    setup(props,context){
-      // 获取图片的高度，赋给li，使图片描述定位在li底部
-
-      let count = ref(0)
+    setup(){
       // 请求地址的page值
       let page = ref(1)
-      // 销毁的时候
-      onBeforeUnmount(()=>{
-        console.log('Container销毁了');
-      })
-      
 
       // 骨架屏是否显示 isSkeletonShow
       let isSkeletonShow = ref(false)
@@ -108,15 +98,6 @@
       function loadingShow(){
         isLoadingShow.value = true
       }
-      // 一上来请求一次图片（有骨架屏效果），以后都只有loading效果
-      // 注意getImgUrl这个函数必须写在skeleton和isLoadingShow定义后面
-      // firstGetImgUrl()
-      // 子组件重新渲染上去的时候向父组件请求count的值,并执行count次ajax请求
-      console.log('子组件收到count的值'+props.countNum);
-      for(let i=0;i<props.countNum;i++){
-        getImgUrl()
-      }
-
       // 准备好三列放照片的槽
       const urlArrLeft = reactive([])
       const urlArrCenter = reactive([])
@@ -128,14 +109,8 @@
         // 点击请求之后立马加载一个骨架屏效果
         skeletonShow()
         loadingShow()
-        // 给App组件传递参数
-        PubSub.publish('currentCount', 1)
-        count.value++
         axios.get(`http://api.isoyu.com/api/picture/index?page=${page.value}`)
           .then(res=>{
-            console.log(res.data.data[0].cover);
-            console.log(res.data.data[1].cover);
-            console.log(res.data.data[2].cover);
             for(let i=0;i<18;i++){
               if(i<6){urlArrLeft.push(res.data.data[i].cover)}
               else if(i<12){urlArrCenter.push(res.data.data[i].cover)}
@@ -144,7 +119,6 @@
             isSkeletonShow.value = false
             isLoadingShow.value = false
             page.value += 18
-            console.log('page的值',page.value)
           })
       }
       // 以后获取图片url
@@ -155,32 +129,33 @@
         skeletonShow()
         loadingShow()
         // 给App组件传递参数
-        PubSub.publish('currentCount', 1)
-        count.value++
-        axios.get(`http://api.isoyu.com/api/picture/index?page=${page.value}`)
-          .then(res=>{
-            for(let i=0;i<18;i++){
-              if(i<6){urlArrLeft.push(res.data.data[i].cover)}
-              else if(i<12){urlArrCenter.push(res.data.data[i].cover)}
-              else {urlArrRight.push(res.data.data[i].cover)}
-            }
-            isSkeletonShow.value = false
-            isLoadingShow.value = false
-            page.value += 18
-            console.log('page的值',page.value)
-          })
+        // PubSub.publish('currentCount', 1)
+        // count.value++
+        if(page.value<=160){
+          axios.get(`http://api.isoyu.com/api/picture/index?page=${page.value}`)
+            .then(res=>{
+              for(let i=0;i<18;i++){
+                if(i<6){urlArrLeft.push(res.data.data[i].cover)}
+                else if(i<12){urlArrCenter.push(res.data.data[i].cover)}
+                else {urlArrRight.push(res.data.data[i].cover)}
+              }
+              isSkeletonShow.value = false
+              isLoadingShow.value = false
+              page.value += 18
+            })
+        } else {
+          alert('暂时只有这么多图片哦~')
+        }
       }
-      
+      // container是否渲染？renderFlag
+      let renderFlag = ref(true)
       // 监测窗口大小的改变
       let flag = ref(false)
       var timer
       // reload函数
       function reload(){
+        renderFlag.value = false
         flag.value = true
-        // 立马清空图片
-        urlArrLeft.length = 0
-        urlArrCenter.length = 0
-        urlArrRight.length = 0
         // 检测到窗口大小的改变之后要做的事
         console.log('窗口大小改变了');
         // 清除所有定时器
@@ -188,9 +163,9 @@
         // 设置一个定时器
         timer = setTimeout(()=>{
           if(flag.value===true){
-            context.emit('reRender', 1)
             // 还原flag的值
             flag.value = false
+            renderFlag.value = true
           }
         }, 500)
       }
@@ -199,11 +174,26 @@
         reload()
       })
 
+      // 监测页面是否滚动到底部
+      onMounted(()=>{
+        function scrollBottom () { 
+          let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+          let clientHeight = document.documentElement.clientHeight;
+          let scrollHeight = document.documentElement.scrollHeight;
+          if (scrollTop + clientHeight >= scrollHeight -2) {
+            console.log("滚动到底部了")
+            getImgUrl()
+          }
+        }
+        window.addEventListener('scroll',scrollBottom)
+      })
+      
+
       return{
         reload,getImgUrl,urlArrLeft,flag,
         urlArrCenter,urlArrRight,isSkeletonShow,
         isLoadingShow,firstGetImgUrl,leftRef,
-        centerRef
+        centerRef,renderFlag
       }
     }
   }
@@ -320,12 +310,11 @@
             color: #29313b;
           }
           .rightLink{
-            display: inline-block;
             height: 100%;
             width: 34px;
             float:right;
             text-align: center;
-            .icon-link{
+            .icon-Open{
               color: #29313b;
             }
           }

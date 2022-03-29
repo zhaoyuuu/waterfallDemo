@@ -2,7 +2,7 @@
   <div class='container'>
     <!-- 标题 -->
      <div class="title">
-       <h2>Singer Waterfall Flow</h2>
+       <h2>Waterfall Flow Demo</h2>
      </div>
      <!-- 右边的查找部分 -->
      <div class="tagSearch">
