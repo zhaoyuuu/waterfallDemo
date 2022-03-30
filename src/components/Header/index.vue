@@ -2,14 +2,10 @@
   <div class='container'>
     <!-- 标题 -->
      <div class="title">
-       <h2>Waterfall Flow Demo</h2>
+       <span>COSPLAY CENTER</span> 
      </div>
-     <!-- 右边的查找部分 -->
-     <div class="tagSearch">
-       <input type="text" placeholder="tags...">
-       <span class="searchButton icon-fangdajing iconfont"></span>
-     </div>
-     
+     <!-- 右边的github链接 -->
+     <a href="http://www.baidu.com" target="_blank" class="githubLink icon-github iconfont"></a>
   </div>
 </template>
   
@@ -23,42 +19,33 @@
 </script>
   
 <style scoped lang='scss'>
-  $textColor: #bfcbd9;
   .container{
     height: 80px;
-    background-color: #304156;
-    box-shadow: 0 5px 5px rgba($color: #000000, $alpha: .2);
+    background-color: #111827;
+    box-shadow: 0 5px 5px rgba($color: #fff, $alpha: .2);
     .title{
       padding-left: 20px;
       line-height: 80px;
       display: inline-block;
-      color: $textColor;
+      span{
+        // 文字颜色透明，露出底色
+        color: transparent;
+        font-size: 40px;
+        font-weight: 700;
+        // 去掉背景颜色
+        background-clip: text;
+        background-image: linear-gradient(to right, rgb(236, 72, 153), rgb(239, 68, 68), rgb(234, 179, 8));
+      }
     }
-    .tagSearch{
-      display: inline-block;
+    .githubLink{
       float: right;
+      width: 120px;
+      height: 80px;
       line-height: 80px;
-      padding-right: 30px;
-      input{
-        outline-style: none ;
-        border: 2px solid $textColor;
-        border-radius: 16px;
-        width: 50px;
-        height: 24px;
-        padding-left: 10px;
-        padding-right: 10px;
-        font-size: 18px;
-        
-      }
-      .searchButton{
-        float: right;
-        display: inline-block;
-        line-height: 80px;
-        font-size: 20px;
-        padding-left: 6px;
-        color: $textColor;
-        cursor: pointer;
-      }
+      text-align: center;
+      font-size: 40px;
+      color: #fff;
+      text-decoration: none;
     }
   }
 </style>

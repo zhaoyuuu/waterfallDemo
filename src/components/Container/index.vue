@@ -286,7 +286,7 @@
           width: 100%;
           height: 100%;
           &:hover{
-          box-shadow: 0 0 14px rgba($color: #000000, $alpha: 1);
+          box-shadow: 0 0 12px rgba($color: #fff, $alpha: .6);
           }
         }
         .detail{

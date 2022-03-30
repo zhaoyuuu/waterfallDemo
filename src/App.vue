@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style lang='scss'>
-  $htmlColor: #eff1f4;
+  $htmlColor: #111827;
   *{
     padding: 0;margin: 0;
   }
